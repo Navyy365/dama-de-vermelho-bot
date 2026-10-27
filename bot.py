@@ -71,7 +71,7 @@ CONTEUDOS = {
     },
 }
 
-@app.route('/' + TOKEN_TELEGRAM, methods=['POST'])
+@app.route('/', methods=['POST'])
 def getMessage():
     if request.is_json:
         json_string = request.get_data().decode('utf-8')
