@@ -1,4 +1,4 @@
 flask
 pyTelegramBotAPI
-mercadopago-sdk
+mercadopago
 gunicorn
