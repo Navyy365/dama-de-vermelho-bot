@@ -73,10 +73,10 @@ CONTEUDOS = {
 
 @app.route('/', methods=['POST'])
 def getMessage():
-    if request.method == 'POST':
-        json_data = request.get_json(silent=True)
-        if json_data:
-            update = telebot.types.Update.de_json(json_data)
+    if request.headers.get('content-type') == 'application/json':
+        json_string = request.get_data().decode('utf-8')
+        if json_string:
+            update = telebot.types.Update.de_json(json_string)
             bot.process_new_updates([update])
         return '', 200
     return 'Forbidden', 403
