@@ -73,18 +73,24 @@ CONTEUDOS = {
 
 @app.route('/', methods=['POST', 'GET'])
 def getMessage():
-    print(">>> PEDIDO RECEBIDO DO TELEGRAM!", request.headers)
-    if request.method == 'POST':
-        if 'application/json' in request.headers.get('content-type', ''):
+    print(">>> PEDIDO RECEBIDO! Método:", request.method, "Headers:", dict(request.headers))
+    if request.method == 'POST' or request.data:
+        try:
             json_data = request.get_json(silent=True)
+            if not json_data:
+                json_data = request.get_json(force=True, silent=True)
+            
             if json_data:
+                print(">>> JSON extraído com sucesso:", json_data)
                 update = telebot.types.Update.de_json(json_data)
                 bot.process_new_updates([update])
                 print(">>> UPDATE PROCESSADO COM SUCESSO!")
             else:
-                print(">>> ERRO: JSON veio vazio ou inválido.")
-        return '', 200
-    return "Bot online!", 200
+                print(">>> AVISO: Dados recebidos mas não era JSON válido:", request.data)
+        except Exception as e:
+            print(f">>> ERRO AO PROCESSAR UPDATE: {e}")
+            
+    return '', 200
 
 @app.route("/")
 def home():
