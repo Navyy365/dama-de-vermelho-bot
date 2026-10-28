@@ -73,8 +73,8 @@ CONTEUDOS = {
 
 @app.route('/', methods=['POST'])
 def getMessage():
-    if request.headers.get('content-type') == 'application/json':
-        json_data = request.json
+    if request.method == 'POST':
+        json_data = request.get_json(silent=True)
         if json_data:
             update = telebot.types.Update.de_json(json_data)
             bot.process_new_updates([update])
