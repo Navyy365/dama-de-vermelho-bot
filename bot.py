@@ -73,24 +73,26 @@ CONTEUDOS = {
 
 @app.route('/', methods=['POST', 'GET'])
 def getMessage():
-    print(">>> PEDIDO RECEBIDO! Método:", request.method, "Headers:", dict(request.headers))
-    if request.method == 'POST' or request.data:
+    print(f">>> PEDIDO RECEBIDO! Método: {request.method}")
+ 
+    json_data = None
+    if request.is_json:
+        json_data = request.get_json(silent=True)
+    elif request.data:
+        json_data = request.get_json(force=True, silent=True)
+        
+    if json_data:
+        print(">>> JSON processado com sucesso:", json_data)
         try:
-            json_data = request.get_json(silent=True)
-            if not json_data:
-                json_data = request.get_json(force=True, silent=True)
-            
-            if json_data:
-                print(">>> JSON extraído com sucesso:", json_data)
-                update = telebot.types.Update.de_json(json_data)
-                bot.process_new_updates([update])
-                print(">>> UPDATE PROCESSADO COM SUCESSO!")
-            else:
-                print(">>> AVISO: Dados recebidos mas não era JSON válido:", request.data)
+            update = telebot.types.Update.de_json(json_data)
+            bot.process_new_updates([update])
+            print(">>> UPDATE EXECUTADO COM SUCESSO NO BOT!")
         except Exception as e:
-            print(f">>> ERRO AO PROCESSAR UPDATE: {e}")
-            
-    return '', 200
+            print(f">>> ERRO INTERNO AO PROCESSAR UPDATE: {e}")
+    else:
+        print(">>> AVISO: Nenhum JSON encontrado neste pacote.")
+        
+    return 'Bot online e operacional!', 200
 
 @app.route("/")
 def home():
