@@ -18,7 +18,7 @@ CHAVE_SECRETA_CRON = "SegredoDoBot123"
 
 ADMIN_IDS = [7993936618, 8748519754]
 
-bot = telebot.TeleBot(TOKEN_TELEGRAM, threaded=True)
+bot = telebot.TeleBot(TOKEN_TELEGRAM, threaded=False)
 mp = SDK(TOKEN_MERCADO_PAGO)
 app = Flask(__name__)
 
