@@ -71,15 +71,20 @@ CONTEUDOS = {
     },
 }
 
-@app.route('/', methods=['POST'])
+@app.route('/', methods=['POST', 'GET'])
 def getMessage():
-    if 'application/json' in request.headers.get('content-type', ''):
-        json_data = request.get_json(silent=True)
-        if json_data:
-            update = telebot.types.Update.de_json(json_data)
-            bot.process_new_updates([update])
+    print(">>> PEDIDO RECEBIDO DO TELEGRAM!", request.headers)
+    if request.method == 'POST':
+        if 'application/json' in request.headers.get('content-type', ''):
+            json_data = request.get_json(silent=True)
+            if json_data:
+                update = telebot.types.Update.de_json(json_data)
+                bot.process_new_updates([update])
+                print(">>> UPDATE PROCESSADO COM SUCESSO!")
+            else:
+                print(">>> ERRO: JSON veio vazio ou inválido.")
         return '', 200
-    return 'Forbidden', 403
+    return "Bot online!", 200
 
 @app.route("/")
 def home():
