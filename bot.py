@@ -76,9 +76,15 @@ CONTEUDOS = {
 def getMessage():
     if request.is_json:
         json_string = request.get_data().decode('utf-8')
-        update = telebot.types.Update.de_json(json_string)
-        bot.process_new_updates([update])
+        print(f"WEBHOOK RECEBIDO DO TELEGRAM: {json_string}")
+        try:
+            update = telebot.types.Update.de_json(json_string)
+            bot.process_new_updates([update])
+            print("UPDATE PROCESSADO COM SUCESSO")
+        except Exception as e:
+            print(f"ERRO AO PROCESSAR UPDATE: {e}")
         return "OK", 200
+    print("ERRO: Pedido recebido não é JSON válido")
     return "Forbidden", 403
 
 @app.route("/")
@@ -165,6 +171,7 @@ def limpar_geral(message):
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
+    print(f"COMANDO /START ACIONADO PELO USER_ID: {message.from_user.id}")
     markup = telebot.types.InlineKeyboardMarkup(row_width=1)
     markup.add(
         telebot.types.InlineKeyboardButton("❤️ R$ 30,00 - Grupo VIP (30 dias)", callback_data="pix_30"),
@@ -174,6 +181,7 @@ def send_welcome(message):
 
 @bot.message_handler(commands=['relatorio', 'painel'])
 def relatorio_admin(message):
+    print(f"COMANDO /PAINEL ACIONADO PELO USER_ID: {message.from_user.id}")
     if message.from_user.id not in ADMIN_IDS:
         bot.reply_to(message, "Acesso negado. Este comando é exclusivo da administração.")
         return
@@ -221,6 +229,7 @@ def relatorio_admin(message):
 
 @bot.message_handler(commands=['liberar'])
 def liberar_manual(message):
+    print(f"COMANDO /LIBERAR ACIONADO PELO USER_ID: {message.from_user.id}")
     if message.from_user.id not in ADMIN_IDS:
         bot.reply_to(message, "Acesso negado. Este comando é exclusivo da administração.")
         return
@@ -342,6 +351,3 @@ def get_file_id(message):
     elif message.video:
         file_id = message.video.file_id
         bot.reply_to(message, f"🎥 *ID do Vídeo:*\n`{file_id}`", parse_mode="Markdown")
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
