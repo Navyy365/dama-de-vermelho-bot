@@ -350,4 +350,15 @@ def handle_callbacks(call):
 
 @bot.message_handler(content_types=['photo', 'video'])
 def get_file_id(message):
-    if message.from_user.id not in ADMIN_IDS
+    if message.from_user.id not in ADMIN_IDS:
+        return
+    if message.photo:
+        file_id = message.photo[-1].file_id
+        bot.reply_to(message, f"📸 *ID da Foto:*\n`{file_id}`", parse_mode="Markdown")
+    elif message.video:
+        file_id = message.video.file_id
+        bot.reply_to(message, f"🎥 *ID do Vídeo:*\n`{file_id}`", parse_mode="Markdown")
+
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
