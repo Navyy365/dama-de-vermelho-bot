@@ -78,8 +78,22 @@ def getMessage():
         print(f"WEBHOOK RECEBIDO: {json_string}")
         update = telebot.types.Update.de_json(json_string)
         
-        # Processa o update de forma direta para forçar o handler a disparar
-        bot.process_new_updates([update])
+        # Se for uma mensagem com o comando /start, responde diretamente
+        if update.message and update.message.text == '/start':
+            chat_id = update.message.chat.id
+            user_id = update.message.from_user.id
+            print(f"DIRETO: Comando /start detetado para user {user_id}")
+            
+            markup = telebot.types.InlineKeyboardMarkup(row_width=1)
+            markup.add(
+                telebot.types.InlineKeyboardButton("❤️ R$ 30,00 - Grupo VIP (30 dias)", callback_data="pix_30"),
+            )
+            texto = "✨ *Olá! Seja bem-vindo(a)*\n\nEscolha uma das opções abaixo para continuar. Bjss ❤️"
+            bot.send_message(chat_id, texto, parse_mode="Markdown", reply_markup=markup)
+        else:
+            # Para os restantes updates (callbacks, outros comandos), processa normalmente
+            bot.process_new_updates([update])
+            
         return "OK", 200
     return "Forbidden", 403
 
