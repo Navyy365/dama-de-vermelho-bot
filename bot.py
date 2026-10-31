@@ -3,7 +3,6 @@ import sqlite3
 from datetime import datetime, timedelta
 from flask import Flask, request, jsonify
 import telebot
-import telebot.apihelper
 from mercadopago import SDK
 import time
 
@@ -76,15 +75,12 @@ CONTEUDOS = {
 def getMessage():
     if request.is_json:
         json_string = request.get_data().decode('utf-8')
-        print(f"WEBHOOK RECEBIDO DO TELEGRAM: {json_string}")
-        try:
-            update = telebot.types.Update.de_json(json_string)
-            bot.process_new_updates([update])
-            print("UPDATE PROCESSADO COM SUCESSO")
-        except Exception as e:
-            print(f"ERRO AO PROCESSAR UPDATE: {e}")
+        print(f"WEBHOOK RECEBIDO: {json_string}")
+        update = telebot.types.Update.de_json(json_string)
+        
+        # Processa o update de forma direta para forçar o handler a disparar
+        bot.process_new_updates([update])
         return "OK", 200
-    print("ERRO: Pedido recebido não é JSON válido")
     return "Forbidden", 403
 
 @app.route("/")
