@@ -161,54 +161,6 @@ def getMessage():
         return "OK", 200
         
     return "Forbidden", 403
-                
-                conn = sqlite3.connect('subscriptions.db', check_same_thread=False)
-                cursor = conn.cursor()
-
-                cursor.execute("SELECT COUNT(*) FROM subs")
-                total_ativos = cursor.fetchone()[0]
-
-                cursor.execute("SELECT COUNT(*), SUM(valor) FROM vendas")
-                res_vendas = cursor.fetchone()
-                total_vendas = res_vendas[0] if res_vendas[0] else 0
-                faturamento_total = res_vendas[1] if res_vendas[1] else 0.0
-
-                cursor.execute("SELECT descricao, COUNT(*) FROM vendas GROUP BY descricao")
-                vendas_por_tipo = cursor.fetchall()
-
-                cursor.execute("SELECT user_id, expiry FROM subs ORDER BY expiry ASC LIMIT 5")
-                proximos = cursor.fetchall()
-                conn.close()
-
-                texto_relatorio = (
-                    f"📊 *PAINEL DE RELATÓRIOS E ESTATÍSTICAS*\n\n"
-                    f"👥 *Membros VIP Ativos:* `{total_ativos}`\n"
-                    f"📦 *Total de Vendas Realizadas:* `{total_vendas}`\n"
-                    f"💰 *Faturamento Total:* `R$ {faturamento_total:.2f}`\n\n"
-                    f"📋 *Vendas por Pacote:*\n"
-                )
-
-                if vendas_por_tipo:
-                    for desc, qtd in vendas_por_tipo:
-                        texto_relatorio += f"• {desc}: `{qtd}x`\n"
-                else:
-                    texto_relatorio += "Nenhuma venda registada ainda.\n"
-
-                texto_relatorio += f"\n⏳ *Próximas Expirações (Grupo VIP):* \n"
-                if proximos:
-                    for uid, exp in proximos:
-                        texto_relatorio += f"• ID `{uid}` — Expira: `{exp}`\n"
-                else:
-                    texto_relatorio += "Nenhuma assinatura registada de momento.\n"
-
-                bot.reply_to(update.message, texto_relatorio, parse_mode="Markdown")
-                return "OK", 200
-
-        # Para callbacks (botões) e outros comandos (ex: /liberar), processa normalmente
-        bot.process_new_updates([update])
-        return "OK", 200
-        
-    return "Forbidden", 403
 
 @app.route("/")
 def home():
@@ -264,16 +216,6 @@ def check_expirations():
         return f"Verificação concluída. {removidos} utilizadores removidos por expiração.", 200
     except Exception as e:
         return f"Erro: {e}", 500
-
-@bot.message_handler(commands=['forcar_limpeza'])
-def comando_forcar_limpeza(message):
-    if message.from_user.id not in ADMIN_IDS:
-        bot.reply_to(message, "Acesso negado. Este comando é exclusivo da administração.")
-        return
-
-    bot.reply_to(message, "🔄 A executar a verificação de assinaturas expiradas...")
-    total = executar_limpeza_expirados()
-    bot.reply_to(message, f"✅ Limpeza concluída! Total de utilizadores expirados removidos e avisados: `{total}`", parse_mode="Markdown")
 
 @bot.message_handler(commands=['limpar_geral'])
 def limpar_geral(message):
@@ -408,12 +350,4 @@ def handle_callbacks(call):
 
 @bot.message_handler(content_types=['photo', 'video'])
 def get_file_id(message):
-    if message.from_user.id not in ADMIN_IDS:
-        return
-    if message.photo:
-        file_id = message.photo[-1].file_id
-        bot.reply_to(message, f"📸 *ID da Foto:*\n`{file_id}`", parse_mode="Markdown")
-    elif message.video:
-        file_id = message.video.file_id
-        bot.reply_to(message, f"🎥 *ID do Vídeo:*\n`{file_id}`", parse_mode="Markdown")
-        
+    if message.from_user.id not in ADMIN_IDS
