@@ -11,12 +11,16 @@ import time
 telebot.apihelper.CONNECT_TIMEOUT = 10
 telebot.apihelper.READ_TIMEOUT = 10
 
-# Variáveis obtidas do ambiente ou definidas diretamente
-TOKEN_TELEGRAM = os.environ.get("TOKEN_TELEGRAM", "9016024986:AAGu0gX6fyLN-s6nzwNOJKOy6QAPK7acfmA")
-TOKEN_MERCADO_PAGO = os.environ.get("TOKEN_MERCADO_PAGO", "APP_USR-1206418499058235-101014-5b5e7a243d400d764e212c528dbb0c07-346927061")
-GRUPO_VIP_ID = os.environ.get("GRUPO_VIP_ID", "-1005447535477")
-LINK_CONVITE_VIP = os.environ.get("LINK_CONVITE_VIP", "https://t.me/+r_aqMlHEUZE4NjRh")
-CHAVE_SECRETA_CRON = os.environ.get("CHAVE_SECRETA_CRON", "SegredoDoBot123")
+# Variáveis obtidas estritamente do ambiente (Segurança contra exposição no GitHub)
+TOKEN_TELEGRAM = os.environ.get("TOKEN_TELEGRAM")
+TOKEN_MERCADO_PAGO = os.environ.get("TOKEN_MERCADO_PAGO")
+GRUPO_VIP_ID = os.environ.get("GRUPO_VIP_ID")
+LINK_CONVITE_VIP = os.environ.get("LINK_CONVITE_VIP")
+CHAVE_SECRETA_CRON = os.environ.get("CHAVE_SECRETA_CRON")
+
+# Validação de segurança inicial para garantir que o Render tem as chaves injetadas
+if not TOKEN_TELEGRAM or not TOKEN_MERCADO_PAGO:
+    raise ValueError("ERRO CRÍTICO: As variáveis de ambiente TOKEN_TELEGRAM e TOKEN_MERCADO_PAGO devem estar configuradas!")
 
 ADMIN_IDS = [7993936618, 8748519754]
 
@@ -208,7 +212,7 @@ def executar_limpeza_expirados():
 @app.route("/check_expirations", methods=['GET'])
 def check_expirations():
     user_key = request.args.get('key')
-    if user_key != CHAVE_SECRETA_CRON:
+    if CHAVE_SECRETA_CRON and user_key != CHAVE_SECRETA_CRON:
         return "Acesso negado. Chave inválida.", 403
 
     try:
@@ -259,6 +263,8 @@ def liberar_manual(message):
         markup_link = telebot.types.InlineKeyboardMarkup()
         markup_link.add(telebot.types.InlineKeyboardButton("🔗 Entrar no Grupo VIP", url=LINK_CONVITE_VIP))
         bot.reply_to(message, f"✅ Utilizador `{target_user_id}` liberado com sucesso por 30 dias!", parse_mode="Markdown", reply_markup=markup_link)
+    except ValueError:
+        bot.reply_to(message, "❌ O ID do utilizador deve conter apenas números. Exemplo: `/liberar 123456789`", parse_mode="Markdown")
     except Exception as e:
         bot.reply_to(message, f"❌ Erro ao liberar: {e}")
 
@@ -361,4 +367,4 @@ def get_file_id(message):
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(0.0.0.0, port=port)
