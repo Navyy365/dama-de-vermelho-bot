@@ -11,7 +11,7 @@ import time
 telebot.apihelper.CONNECT_TIMEOUT = 10
 telebot.apihelper.READ_TIMEOUT = 10
 
-# Variáveis obtidas
+# Variáveis obtidas estritamente do ambiente
 TOKEN_TELEGRAM = os.environ.get("TOKEN_TELEGRAM")
 TOKEN_MERCADO_PAGO = os.environ.get("TOKEN_MERCADO_PAGO")
 GRUPO_VIP_ID = os.environ.get("GRUPO_VIP_ID")
@@ -367,4 +367,4 @@ def get_file_id(message):
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    app.run(0.0.0.0, port=port)
+    app.run(host="0.0.0.0", port=port)
