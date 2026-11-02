@@ -11,7 +11,7 @@ import time
 telebot.apihelper.CONNECT_TIMEOUT = 10
 telebot.apihelper.READ_TIMEOUT = 10
 
-# Variáveis obtidas estritamente do ambiente (Segurança contra exposição no GitHub)
+# Variáveis obtidas
 TOKEN_TELEGRAM = os.environ.get("TOKEN_TELEGRAM")
 TOKEN_MERCADO_PAGO = os.environ.get("TOKEN_MERCADO_PAGO")
 GRUPO_VIP_ID = os.environ.get("GRUPO_VIP_ID")
